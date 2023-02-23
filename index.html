@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="shortcut icon" type="image/ico" href="company_logo.ico">
+    <script src="https://unpkg.com/vue@next"></script>
+
+    <!--Set visual viewport size for mobile devices to the device size,
+        witch results in a scale of 1 and a 1:1 mapping between CSS pixels
+        and Qt device independent pixels. -->
+    <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0"/>
+
+    <title>中云群智Ai智慧云</title>
+    <style>
+      /* Make the html body cover the entire (visual) viewport with no scroll bars. */
+      html, body { padding: 0; margin: 0; overflow:hidden; height: 100% }
+      /* Make the canvas cover the entire body */
+      canvas { height:100%; width:100%; }
+    </style>
+        <style type="text/css">
+	    .logo {
+			text-align:center;
+			margin: 0 auto;
+			padding-top: 200px
+	    }
+
+	    .title {
+			color:white;
+			font-size: 60px;
+			padding-top: 80px;
+			font-weight: bold;
+	    }
+	    .title_phone {
+			color:white;
+			font-size: 26px;
+			padding-top: 40px;
+			font-weight: bold;
+	    }
+
+	    .title_sub {
+			color:white;
+			font-size: 16px;
+			padding-top: 50px
+	    }
+
+	    .title_status {
+			color:white;
+			font-size: 16px;
+			padding-top: 10px
+	    }
+
+	    .title_perc {
+			color:white;
+			font-size: 24px;
+			padding-top: 80px
+	    }
+
+	    .title_perc_phone {
+			color:white;
+			font-size: 24px;
+			padding-top: 30px
+	    }
+
+            .loading {
+                width: 100%;
+                height: 100%;
+                position: fixed;
+                top: 0;
+                left: 0;
+            }
+            
+            /* 绘制进度条图形 */
+            .myicon {
+                margin: 0 auto;
+		padding-top: 750px;
+                width: 50px;
+                height: 30px;
+                
+            }
+            .myicon-item {
+                width: 5px;
+                height: 10px;
+                background-color: green;
+                float: left;
+                margin-right: 5px;
+                -webkit-animation: myicon 1s infinite;
+                        animation: myicon 1s infinite;
+            }
+            .item1 {
+                -webkit-animation-delay: -1s;
+                        animation-delay: -1s;
+            }
+            .item2 {
+                -webkit-animation-delay: -0.9s;
+                        animation-delay: -0.9s;
+            }
+            .item3 {
+                -webkit-animation-delay: -0.8s;
+                        animation-delay: -0.8s;
+            }
+            .item4 {
+                -webkit-animation-delay: -0.7s;
+                        animation-delay: -0.7s;
+            }
+            .item5 {
+                -webkit-animation-delay: -0.6s;
+                        animation-delay: -0.6s;
+            }
+            @-webkit-keyframes myicon {
+                0% 100%{
+                    -webkit-transform: scaleY(1);
+                            transform: scaleY(1);
+                }
+                50% {
+                    -webkit-transform: scaleY(3);
+                            transform: scaleY(3);
+                }
+            }
+            @keyframes myicon {
+                0% 100%{
+                    -webkit-transform: scaleY(1);
+                            transform: scaleY(1);
+                }
+                50% {
+                    -webkit-transform: scaleY(3);
+                            transform: scaleY(3);
+                }
+            }
+        </style>
+  </head>
+  <body onload="init()" background="login_bg.png" style="background-repeat:no-repeat;background-size:100% 100%;background-attachment: fixed;">
+    <figure style="overflow:visible;" id="qtspinner">
+      <center style="margin-top:1.5em; line-height:150%">
+	<div>
+        	<img id="company_logo" class="logo" src="company_logo.png" width="120" height="120" style="display:block;"></img>
+        </div>
+	<div id="app"></div>
+	<div class="title_sub">
+        	<span>资源正在加载中,请稍后...</span>
+        </div>
+	<div class="title_status" id="qtstatus"></div>
+        <noscript>JavaScript is disabled. Please enable JavaScript to use this application.</noscript>
+		
+	<div class="loading">
+            <div class="myicon">
+                <div class="myicon-item item1"></div>
+                <div class="myicon-item item2"></div>
+                <div class="myicon-item item3"></div>
+                <div class="myicon-item item4"></div>
+                <div class="myicon-item item5"></div>
+            </div>
+        </div>
+      </center>
+    </figure>
+    <canvas id="qtcanvas"></canvas>
+
+    <script type='text/javascript'>
+        let qtLoader = undefined;
+        function init() {
+          var spinner = document.querySelector('#qtspinner');
+          var canvas = document.querySelector('#qtcanvas');
+          var status = document.querySelector('#qtstatus')
+
+          qtLoader = QtLoader({
+              canvasElements : [canvas],
+              showLoader: function(loaderStatus) {
+                  spinner.style.display = 'block';
+                  canvas.style.display = 'none';
+                  status.innerHTML = loaderStatus + "...";
+              },
+              showError: function(errorText) {
+                  status.innerHTML = errorText;
+                  spinner.style.display = 'block';
+                  canvas.style.display = 'none';
+              },
+              showExit: function() {
+                  status.innerHTML = "Application exit";
+                  if (qtLoader.exitCode !== undefined)
+                      status.innerHTML += " with code " + qtLoader.exitCode;
+                  if (qtLoader.exitText !== undefined)
+                      status.innerHTML += " (" + qtLoader.exitText + ")";
+                  spinner.style.display = 'block';
+                  canvas.style.display = 'none';
+              },
+              showCanvas: function() {
+                  spinner.style.display = 'none';
+                  canvas.style.display = 'block';
+              },
+          });
+          qtLoader.loadEmscriptenModule("IoTDMS");
+      }
+    </script>
+    <script type="text/javascript" src="qtloader.js"></script>
+  </body>
+
+  <script>
+    Vue.createApp({
+	methods:{
+		isMobile() {
+			let flag = navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)
+			return flag
+		}
+	},
+	mounted() {
+		this.speed = navigator.connection.downlink * 1024 / 8;
+		console.log("speed: " + this.speed);
+		this.domain = document.domain;
+		console.log(this.domain);
+		if (true) {
+			this.content = "中云群智Ai智慧云";
+			document.title = "中云群智Ai智慧云";
+			var getImg = document.getElementById("company_logo");
+			getImg.src = "company_logo.png";
+			let $favicon = document.querySelector('link[rel="icon"]');
+			if ($favicon !== null) {
+			    $favicon.href = "company_logo.ico";
+			}
+		}
+		setInterval(() => {
+			this.speed = navigator.connection.downlink * 1024 / 8;
+			//this.counter += this.speed;
+			this.counter += 1000;
+			this.perc = parseInt(100 * this.counter / this.wasm_sz);
+			if (this.perc > 100)
+				this.perc = 100;
+			this.perc_show = this.perc.toString() + '%';
+		}, 1000)
+	},
+	data(){
+            return{
+                content:'中云群智Ai智慧云',
+		counter: 0,
+		speed: 0,
+		wasm_sz: 7 * 1024,
+		perc: 0,
+		perc_show: "",
+		domain: "iot.zyqztek.cn"
+            }
+        },
+	template:
+		 `<div>
+	 	 	<div v-if="isMobile()" class="title_phone">
+	 		{{content}}
+	 		</div>
+	 		<div v-else class="title">
+	 		{{content}}
+	 		</div>
+	 		<div v-if="isMobile()" class="title_perc_phone">{{perc_show}}</div>
+	 		<div v-else class="title_perc">{{perc_show}}</div>
+		</div>`
+    }).mount("#app")
+</script>
+</html>
